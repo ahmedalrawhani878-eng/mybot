@@ -1,4 +1,4 @@
-المفاتيحوحةوحةننانختررحباًبport logging
+import logging
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
