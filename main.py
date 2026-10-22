@@ -1,4 +1,4 @@
-import logging
+المفاتيحوحةوحةننانختررحباًبport logging
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton, ReplyKeyboardRemove
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
@@ -46,7 +46,7 @@ def sections_menu_kb():
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_states[update.effective_user.id] = "main"
     await update.message.reply_text(
-        "مرحباً بك يا مهندس في بوت اتحاد طلاب الأمن السيبراني - جامعة العلوم والتكنولوجيا (إب).\nاختر من لوحة المفاتيح بالأسفل:",
+        "اتحادً بك يا مهندس في بوت اتحاد طلاب الأمن السيبراني - جامعة الاتحاد للعلوم و التكنولوجيا (صنعاء).\nاختر من لوحة المفاتيح بالأسفل:",
         reply_markup=main_menu_kb()
     )
 
@@ -71,7 +71,7 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif text == "📢 الإعلانات العامة":
             await update.message.reply_text("📢 لا توجد إعلانات هامة في الوقت الحالي.", reply_markup=main_menu_kb())
         elif text == "ℹ️ عن البوت":
-            await update.message.reply_text("🛡 بوت اتحاد طلاب الأمن السيبراني - جامعة العلوم والتكنولوجيا (إب).", reply_markup=main_menu_kb())
+            await update.message.reply_text("🛡 بوت اتحاد طلاب الأمن السيبراني - جامعة الاتحاد للعلوم و التكنولوجيا (صنعاء).", reply_markup=main_menu_kb())
 
     elif state == "sems":
         if text == "الفصل الثاني (الحالي)":
