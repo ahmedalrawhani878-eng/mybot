@@ -47,11 +47,28 @@ def culture_sections_menu_kb():
     ], resize_keyboard=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    user = update.effective_user
+    admin_id = 8860646306  # الآي دي الخاص بك
+    
+    # إرسال إشعار لك في خاصك عندما يدخل أي طالب جديد
+    if user.id != admin_id:
+        notification_text = (
+            f"🚨 طالب جديد دخل البوت!\n\n"
+            f"👤 الاسم: {user.full_name}\n"
+            f"🔗 المعرّف: @{user.username if user.username else 'لا يوجد'}\n"
+            f"🆔 الآي دي: `{user.id}`"
+        )
+        try:
+            await context.bot.send_message(chat_id=admin_id, text=notification_text, parse_mode="Markdown")
+        except Exception as e:
+            print(f"Error sending notification: {e}")
+
     user_states[update.effective_user.id] = "main"
     await update.message.reply_text(
-        "مرحباً بك يا مهندس في بوت اتحاد طلاب الأمن السيبراني - جامعة العلوم والتكنولوجيا (صنعاء).\nاختر من لوحة المفاتيح بالأسفل:",
+        "طلاب الأمن السيبراني - جامعة العلوم والتكنولوجيا (صنعاء)",
         reply_markup=main_menu_kb()
     )
+
 
 async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
