@@ -1,4 +1,4 @@
-isrt logging
+import logging
 from telegram import Update, ReplyKeyboardMarkup, KeyboardButton
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
@@ -31,8 +31,6 @@ def subjects_menu_kb():
         [KeyboardButton("ثقافة (2)"), KeyboardButton("🔙 رجوع للفصول")]
     ], resize_keyboard=True)
 
-# لوحة الأقسام العادية (4 مواد الأولى + 2 شبكات وقواعد بيانات وويب ومخاطر وتشفير)
-# لوحة الأقسام العادية (مضاف إليها التلخيص والتسجيلات)
 def sections_menu_kb():
     return ReplyKeyboardMarkup([
         [KeyboardButton("📖 نظري"), KeyboardButton("💻 عملي")],
@@ -41,7 +39,6 @@ def sections_menu_kb():
         [KeyboardButton("🔙 رجوع للمواد")]
     ], resize_keyboard=True)
 
-# لوحة أقسام مادة ثقافة (2) - (بدون عملي)
 def culture_sections_menu_kb():
     return ReplyKeyboardMarkup([
         [KeyboardButton("📖 نظري"), KeyboardButton("📝 تكاليف")],
@@ -51,9 +48,8 @@ def culture_sections_menu_kb():
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user = update.effective_user
-    admin_id = 8860646306  # الآي دي الخاص بك
+    admin_id = 8860646306
     
-    # إرسال إشعار لك في خاصك عندما يدخل أي طالب جديد
     if user.id != admin_id:
         notification_text = (
             f"🚨 طالب جديد دخل البوت!\n\n"
@@ -72,7 +68,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup=main_menu_kb()
     )
 
-
 async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     text = update.message.text
@@ -90,7 +85,18 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
         elif text in ["📚 السنة الدراسية الأولى", "📚 السنة الدراسية الثالثة", "📚 السنة الدراسية الرابعة"]:
             await update.message.reply_text(f"🛡 عذراً يا مهندس، محتوى **{text}** غير متوفر حالياً.", reply_markup=main_menu_kb(), parse_mode="Markdown")
         elif text == "📢 الإعلانات العامة":
-            await update.message.reply_text("📢 لا توجد إعلانات هامة في الوقت الحالي.", reply_markup=main_menu_kb())
+            section_key = "announcement"
+            files = stored_files.get(section_key, [])
+            if not files:
+                await update.message.reply_text("📢 لا توجد إعلانات عامة مرفوعة حتى الآن.\n(قم برفعها في القناة بالهاشتاج: #announcement)", reply_markup=main_menu_kb())
+            else:
+                await update.message.reply_text(f"📢 إليك الإعلانات العامة ({len(files)} ملف):", reply_markup=main_menu_kb())
+                for message in files:
+                    await context.bot.copy_message(
+                        chat_id=user_id,
+                        from_chat_id=message.chat_id,
+                        message_id=message.message_id
+                    )
         elif text == "ℹ️ عن البوت":
             await update.message.reply_text("🛡 بوت اتحاد طلاب الأمن السيبراني - جامعة العلوم والتكنولوجيا (صنعاء).", reply_markup=main_menu_kb())
 
@@ -119,35 +125,35 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 "ثقافة (2)": "sub_culture"
             }
             if text in sub_map:
-                context.user_data['current_sub'] = sub_map[text]
+                context.user_data['current_sub_code'] = sub_map[text]
                 context.user_data['current_sub_name'] = text
                 user_states[user_id] = "sections"
                 
-                # إذا كانت المادة ثقافة 2 نعرض لها القائمة المخصصة بدون عملي
                 if text == "ثقافة (2)":
                     await update.message.reply_text(f"مادة: {text}\nاختر القسم المطلوب:", reply_markup=culture_sections_menu_kb())
                 else:
                     await update.message.reply_text(f"مادة: {text}\nاختر القسم المطلوب:", reply_markup=sections_menu_kb())
 
-            elif state == "sections":
-            if text == "🔙 رجوع للمواد":
-                user_states[user_id] = "subjects"
-                await update.message.reply_text("اختر المادة:")
-            else:
-                sub_name = context.user_data.get('current_sub_name', '')
-                sec_map = {
-                    "📖 نظري": "_theory",
-                    "💻 عملي": "_practical",
-                    "📝 تكاليف": "_tasks",
-                    "📸 صور المحاضرة": "_board",
-                    "📝 تلخيص المادة": "_summary",
-                    "🎙️ 🎥 تسجيلات المحاضرات": "_recordings"
-                }
-                
-                if text in sec_map:
-                    sub_code = context.user_data.get('current_sub_code', '')
-                    section_key = f"{sub_code}{sec_map[text]}"
-                    files = stored_files.get(section_key, [])
+    elif state == "sections":
+        if text == "🔙 رجوع للمواد":
+            user_states[user_id] = "subjects"
+            await update.message.reply_text("📚 مواد السنة الثانية - الفصل الثاني:\nاختر المادة:", reply_markup=subjects_menu_kb())
+        else:
+            sub_name = context.user_data.get('current_sub_name', '')
+            sub_code = context.user_data.get('current_sub_code', '')
+            
+            sec_map = {
+                "📖 نظري": "_theory",
+                "💻 عملي": "_practical",
+                "📝 تكاليف": "_tasks",
+                "📸 صور المحاضرة": "_board",
+                "📝 تلخيص المادة": "_summary",
+                "🎙️ 🎥 تسجيلات المحاضرات": "_recordings"
+            }
+            
+            if text in sec_map:
+                section_key = f"{sub_code}{sec_map[text]}"
+                files = stored_files.get(section_key, [])
 
                 current_kb = culture_sections_menu_kb() if sub_name == "ثقافة (2)" else sections_menu_kb()
 
@@ -166,15 +172,29 @@ async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE
     message = update.channel_post
     if message and message.caption:
         caption = message.caption.strip()
-        for key in ["sub_risk", "sub_crypto", "sub_networks", "sub_os", "sub_programming", "sub_culture"]:
-            for section in ["_theory", "_practical", "_tasks", "_board", "_summary", "_recordings"]:
+        
+        # فحص الإعلانات العامة
+        if "#announcement" in caption:
+            target_key = "announcement"
+            if target_key not in stored_files:
+                stored_files[target_key] = []
+            stored_files[target_key].append(message)
+            await message.reply_text("✅ تم حفظ الإعلان العام بنجاح!")
+            return
+
+        # فحص كافة مواد الفصل الدراسي الثاني والهاشتاجات الخاصة بها
+        subjects_list = ["sub_risk", "sub_crypto", "sub_web", "sub_os", "sub_db", "sub_net", "sub_culture"]
+        sections_list = ["_theory", "_practical", "_tasks", "_board", "_summary", "_recordings"]
+        
+        for key in subjects_list:
+            for section in sections_list:
                 full_tag = f"#{key}{section}"
                 if full_tag in caption:
                     target_key = f"{key}{section}"
                     if target_key not in stored_files:
                         stored_files[target_key] = []
                     stored_files[target_key].append(message)
-                    await message.reply_text(f"✅ تم حفظ الملف في قسم {section} بنجاح!")
+                    await message.reply_text(f"✅ تم حفظ الملف في القسم بنجاح!")
                     return
 
 def main():
@@ -182,7 +202,7 @@ def main():
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_messages))
-    application.add_handler(MessageHandler(filters.ChatType.CHANNEL & (filters.Document.ALL | filters.PHOTO | filters.TEXT), handle_channel_post))
+    application.add_handler(MessageHandler(filters.ChatType.CHANNEL, handle_channel_post))
 
     print("Bot is running...")
     application.run_polling()
