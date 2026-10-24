@@ -129,26 +129,26 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 else:
                     await update.message.reply_text(f"مادة: {text}\nاختر القسم المطلوب:", reply_markup=sections_menu_kb())
 
-    elif state == "sections":
-        if text == "🔙 رجوع للمواد":
-            user_states[user_id] = "subjects"
-            await update.message.reply_text("اختر المادة:", reply_markup=subjects_menu_kb())
-        else:
-        sub_name = context.user_data.get('current_sub_name', '')
-        sec_map = {
-                "📖 نظري": "_theory",
-                "💻 عملي": "_practical",
-                "📝 تكاليف": "_tasks",
-                "📸 صور المحاضرة": "_board",
-                "📝 تلخيص المادة": "_summary",
-                "🎙️ 🎥 تسجيلات المحاضرات": "_recordings"
-            }
-
-            if text in sec_map:
-                sub_code = context.user_data.get('current_sub', 'sub_risk')
-                section_key = f"{sub_code}{sec_map[text]}"
-                files = stored_files.get(section_key, [])
+            elif state == "sections":
+            if text == "🔙 رجوع للمواد":
+                user_states[user_id] = "subjects"
+                await update.message.reply_text("اختر المادة:")
+            else:
+                sub_name = context.user_data.get('current_sub_name', '')
+                sec_map = {
+                    "📖 نظري": "_theory",
+                    "💻 عملي": "_practical",
+                    "📝 تكاليف": "_tasks",
+                    "📸 صور المحاضرة": "_board",
+                    "📝 تلخيص المادة": "_summary",
+                    "🎙️ 🎥 تسجيلات المحاضرات": "_recordings"
+                }
                 
+                if text in sec_map:
+                    sub_code = context.user_data.get('current_sub_code', '')
+                    section_key = f"{sub_code}{sec_map[text]}"
+                    files = stored_files.get(section_key, [])
+
                 current_kb = culture_sections_menu_kb() if sub_name == "ثقافة (2)" else sections_menu_kb()
 
                 if not files:
