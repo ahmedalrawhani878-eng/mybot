@@ -166,15 +166,15 @@ async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE
     message = update.channel_post
     if message and message.caption:
         caption = message.caption.strip()
-        for key in ["sub_risk", "sub_crypto", "sub_web", "sub_os", "sub_db", "sub_net", "sub_culture"]:
-                            for section in ["_theory", "_practical", "_tasks", "_board", "_summary", "_recordings"]:
+        for key in ["sub_risk", "sub_crypto", "sub_networks", "sub_os", "sub_programming", "sub_culture"]:
+            for section in ["_theory", "_practical", "_tasks", "_board", "_summary", "_recordings"]:
                 full_tag = f"#{key}{section}"
                 if full_tag in caption:
                     target_key = f"{key}{section}"
                     if target_key not in stored_files:
                         stored_files[target_key] = []
                     stored_files[target_key].append(message)
-                    await message.reply_text(f"✅ تم حفظ الملف بنجاح في قسم: {target_key}")
+                    await message.reply_text(f"✅ تم حفظ الملف في قسم {section} بنجاح!")
                     return
 
 def main():
