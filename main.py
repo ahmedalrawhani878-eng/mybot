@@ -32,18 +32,21 @@ def subjects_menu_kb():
     ], resize_keyboard=True)
 
 # لوحة الأقسام العادية (4 مواد الأولى + 2 شبكات وقواعد بيانات وويب ومخاطر وتشفير)
+# لوحة الأقسام العادية (مضاف إليها التلخيص والتسجيلات)
 def sections_menu_kb():
     return ReplyKeyboardMarkup([
         [KeyboardButton("📖 نظري"), KeyboardButton("💻 عملي")],
         [KeyboardButton("📝 تكاليف"), KeyboardButton("📸 صور المحاضرة")],
+        [KeyboardButton("📝 تلخيص المادة"), KeyboardButton("🎙️ 🎥 تسجيلات المحاضرات")],
         [KeyboardButton("🔙 رجوع للمواد")]
     ], resize_keyboard=True)
 
-# لوحة أقسام مادة ثقافة (2) - بدون عملي
+# لوحة أقسام مادة ثقافة (2) - (بدون عملي)
 def culture_sections_menu_kb():
     return ReplyKeyboardMarkup([
         [KeyboardButton("📖 نظري"), KeyboardButton("📝 تكاليف")],
-        [KeyboardButton("📸 صور المحاضرة"), KeyboardButton("🔙 رجوع للمواد")]
+        [KeyboardButton("📸 صور المحاضرة"), KeyboardButton("🎙️ 🎥 تسجيلات المحاضرات")],
+        [KeyboardButton("📝 تلخيص المادة"), KeyboardButton("🔙 رجوع للمواد")]
     ], resize_keyboard=True)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -132,7 +135,15 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("اختر المادة:", reply_markup=subjects_menu_kb())
         else:
             sub_name = context.user_data.get('current_sub_name', '')
-            sec_map = {"📖 نظري": "_theory", "💻 عملي": "_practical", "📝 تكاليف": "_tasks", "📸 صور المحاضرة": "_board"}
+                        sec_map = {
+                "📖 نظري": "_theory", 
+                "💻 عملي": "_practical", 
+                "📝 تكاليف": "_tasks", 
+                "📸 صور المحاضرة": "_board",
+                "📝 تلخيص المادة": "_summary",
+                "🎙️ 🎥 تسجيلات المحاضرات": "_recordings"
+            }
+
             
             if text in sec_map:
                 sub_code = context.user_data.get('current_sub', 'sub_risk')
@@ -157,7 +168,7 @@ async def handle_channel_post(update: Update, context: ContextTypes.DEFAULT_TYPE
     if message and message.caption:
         caption = message.caption.strip()
         for key in ["sub_risk", "sub_crypto", "sub_web", "sub_os", "sub_db", "sub_net", "sub_culture"]:
-            for section in ["_theory", "_practical", "_tasks", "_board"]:
+                            for section in ["_theory", "_practical", "_tasks", "_board", "_summary", "_recordings"]:
                 full_tag = f"#{key}{section}"
                 if full_tag in caption:
                     target_key = f"{key}{section}"
