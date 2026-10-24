@@ -135,16 +135,16 @@ async def handle_messages(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await update.message.reply_text("اختر المادة:", reply_markup=subjects_menu_kb())
         else:
             sub_name = context.user_data.get('current_sub_name', '')
-                        sec_map = {
-                "📖 نظري": "_theory", 
-                "💻 عملي": "_practical", 
-                "📝 تكاليف": "_tasks", 
+                                    sub_name = context.user_data.get('current_sub_name', '')
+            sec_map = {
+                "📖 نظري": "_theory",
+                "💻 عملي": "_practical",
+                "📝 تكاليف": "_tasks",
                 "📸 صور المحاضرة": "_board",
                 "📝 تلخيص المادة": "_summary",
                 "🎙️ 🎥 تسجيلات المحاضرات": "_recordings"
             }
 
-            
             if text in sec_map:
                 sub_code = context.user_data.get('current_sub', 'sub_risk')
                 section_key = f"{sub_code}{sec_map[text]}"
